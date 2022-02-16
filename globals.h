@@ -36,10 +36,11 @@ typedef struct
     qreal value;
     qreal p;
     qreal i;
+    qreal d;
     qreal setpoint;
     qreal maxerr;
-    qreal fb_max;
     qreal fb_min;
+    qreal fb_max;
     quint32 fb_pending;
     qreal plot_range;
 } Laser;

@@ -36,14 +36,19 @@ void LaserControl::initControlBox()
 
     pLabel = new QLabel(tr("P(reg):"));
     pInput = new QLineEdit;
-    pInput->setText(QString::number(m_laser->p,'f',2));
+    pInput->setText(QString::number(m_laser->p,'f',5));
     QObject::connect(pInput, &QLineEdit::editingFinished,
                      this, &LaserControl::changeP);
     iLabel = new QLabel(tr("I(reg):"));
     iInput = new QLineEdit;
-    iInput->setText(QString::number(m_laser->i,'f',2));
+    iInput->setText(QString::number(m_laser->i,'f',5));
     QObject::connect(iInput, &QLineEdit::editingFinished,
                      this, &LaserControl::changeI);
+    dLabel = new QLabel(tr("D(reg):"));
+    dInput = new QLineEdit;
+    dInput->setText(QString::number(m_laser->d,'f',5));
+    QObject::connect(dInput, &QLineEdit::editingFinished,
+                     this, &LaserControl::changeD);
     setpLabel = new QLabel(tr("Setpoint:"));
     setpInput = new QLineEdit;
     setpInput->setText(QString::number(m_laser->setpoint,'f',5));
@@ -70,6 +75,7 @@ void LaserControl::initControlBox()
     controlBoxGrid->addRow(merrLabel, merrInput);
     controlBoxGrid->addRow(pLabel, pInput);
     controlBoxGrid->addRow(iLabel, iInput);
+    controlBoxGrid->addRow(dLabel, dInput);
     controlBoxGrid->addRow(regSwitch, regStatus);
     groupWidget->setLayout(controlBoxGrid);
 }
@@ -119,6 +125,11 @@ void LaserControl::changeI()
     m_laser->i = iInput->text().toDouble();
 }
 
+void LaserControl::changeD()
+{
+    m_laser->d = dInput->text().toDouble();
+}
+
 void LaserControl::changeSetP()
 {
     m_laser->setpoint = setpInput->text().toDouble();
@@ -134,20 +145,24 @@ void LaserControl::changeOffset()
     if (regSwitch->isChecked()) {
         if (abs(channels_freqs[m_laser->wm_channel] - m_laser->setpoint) > m_laser->maxerr) { //out of range
             regSwitch->setChecked(false);
-        } else offset = m_laser->value;
+        }
+        else { // Init feedback
+            offset = m_laser->value;
+            last_err = channels_freqs[m_laser->wm_channel] - m_laser->setpoint;
+        }
     } else regStatus->setStyleSheet("QPushButton {background-color: white}");
 }
 
 void LaserControl::voltFeedback()
 {
     qreal f_err = channels_freqs[m_laser->wm_channel] - m_laser->setpoint;
-    if (!regSwitch->isChecked()) { // Regulation off
-        return;
-    }
-    else {
+
+    // Feedback
+    if (regSwitch->isChecked()) {
         if (abs(f_err) < m_laser->maxerr) { //counts valid data
             feedback_counter++;
             err_sum += f_err;
+            offset = m_laser->value;
             regStatus->setStyleSheet("QPushButton {background-color: green}");
             regStatus->update();
         }
@@ -160,9 +175,17 @@ void LaserControl::voltFeedback()
         // only do the feedback when the error is stable for given time
         if (feedback_counter >= m_laser->fb_pending) {
             voltageInput->setValue( offset + qBound(m_laser->fb_min,
-                                    err_sum * m_laser->i + f_err*m_laser->p,
+                                    f_err*m_laser->p + err_sum * m_laser->i + (f_err-last_err)*m_laser->d,
                                     m_laser->fb_max) );
+            offset = m_laser->value;
+            qDebug() << qBound(m_laser->fb_min,
+                               f_err*m_laser->p + err_sum * m_laser->i + (f_err-last_err)*m_laser->d,
+                               m_laser->fb_max);
+            qDebug() << f_err << f_err*m_laser->p;
         }
     }
+
+    last_err = f_err;
+
     return;
 }

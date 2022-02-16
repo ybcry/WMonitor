@@ -1,7 +1,7 @@
 #include "chartview.h"
 
-#include <QValueAxis>
 #include <QLineSeries>
+
 
 PatternChart::PatternChart(QWidget *parent)
     : QWidget(parent)
@@ -9,6 +9,7 @@ PatternChart::PatternChart(QWidget *parent)
     , series(new QLineSeries)
 {
     initChart();
+
 }
 
 PatternChart::~PatternChart()
@@ -44,7 +45,7 @@ void PatternChart::initChart()
     chart->legend()->hide();
 
     QChartView *chartView = new QChartView(chart);
-    chartView->setMinimumSize(300,150);
+    chartView->setMinimumSize(300,250);
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(chartView);
     //this->setRenderHint(QPainter::Antialiasing); //Disable to reduce %CPU
@@ -71,7 +72,8 @@ void LaserFreqPlot::initPage()
     QValueAxis *axisX = new QValueAxis;
     axisX->setRange(0, freqplot_x_length);
     axisX->setLabelFormat("%g");
-    QValueAxis *axisY = new QValueAxis;
+    axisY = new QValueAxis;
+    //axisY->setRange(m_laser->setpoint - 0.00005, m_laser->setpoint + 0.00005);
     axisY->setRange(m_laser->setpoint - m_laser->plot_range/2, m_laser->setpoint + m_laser->plot_range/2);
     axisY->setTitleText("Frequency/THz");
     chart->addAxis(axisX, Qt::AlignBottom);
@@ -94,6 +96,7 @@ void LaserFreqPlot::updateFreq()
             m_buffer[i].setY(m_buffer[i+1].y());
         m_buffer[freqplot_x_length-1].setY(channels_freqs[m_laser->wm_channel]);
     }
+    axisY->setRange(m_laser->setpoint - m_laser->plot_range/2, m_laser->setpoint + m_laser->plot_range/2);
     series->replace(m_buffer);
 }
 

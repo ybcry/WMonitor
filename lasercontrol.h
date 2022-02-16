@@ -36,6 +36,8 @@ private:
     QLineEdit *pInput;
     QLabel *iLabel;
     QLineEdit *iInput;
+    QLabel *dLabel;
+    QLineEdit *dInput;
     QLabel *setpLabel;
     QLineEdit *setpInput;
     QLabel *merrLabel;
@@ -51,6 +53,7 @@ private:
     quint32 feedback_counter;
     qreal err_sum;
     qreal offset;
+    qreal last_err;
 
 signals:
     void error(QString &s);
@@ -63,6 +66,8 @@ public slots:
     void changeP();
     /// @brief Change I parameter
     void changeI();
+    /// @brief Change D parameter
+    void changeD();
     /// @brief Change setpoint
     void changeSetP();
     /// @brief Change max error

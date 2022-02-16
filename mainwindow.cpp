@@ -42,6 +42,8 @@ void MainWindow::initUI()
             json->loadWavemeterData(udpSocket->receiveDatagram().data());
             pattern->series->replace(json->wm_pattern);
             pattern->chart->setTitle(QString("Frequency:%1 THz").arg(channels_freqs[pattern_channel],0,'f',5));
+            //pattern->chart->setPlotArea(pattern->chart->margins());
+            //pattern->chart->setPlotArea(QRectF(10,-100,800,300));
             emit freqReceived(); // this triggers pid at lasercontrols
             delete json;
         }
@@ -139,6 +141,7 @@ void MainWindow::readConfig()
             settings.value("ao_value").toReal(),
             settings.value("fb_p").toReal(),
             settings.value("fb_i").toReal(),
+            settings.value("fb_d").toReal(),
             settings.value("fb_setpoint").toReal(),
             settings.value("fb_maxerr").toReal(),
             settings.value("fb_min").toReal(),
@@ -182,6 +185,7 @@ void MainWindow::writeConfig()
         settings.setValue("ao_value",lasers[i].value);
         settings.setValue("fb_p",lasers[i].p);
         settings.setValue("fb_i",lasers[i].i);
+        settings.setValue("fb_d",lasers[i].d);
         settings.setValue("fb_setpoint",lasers[i].setpoint);
         settings.setValue("fb_maxerr",lasers[i].maxerr);
         settings.endGroup();

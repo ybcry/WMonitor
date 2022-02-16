@@ -4,6 +4,7 @@
 #include "globals.h"
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
+#include <QValueAxis>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -20,6 +21,7 @@ public:
 
     QChart *chart;
     QLineSeries *series;
+
 };
 
 class LaserFreqPlot : public QWidget
@@ -40,6 +42,7 @@ private:
     QVector<QPointF> m_buffer;
     quint16 count;
     QLabel *freqLabel;
+    QValueAxis *axisY;
 
 public slots:
     void updateFreq();

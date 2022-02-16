@@ -21,7 +21,7 @@ qint16 pattern_x_min = 0;
 qint16 pattern_x_max = 2048;
 qint8 pattern_x_tick_counts = 5;
 qint16 pattern_y_min = 0;
-qint16 pattern_y_max = 4000;
+qint16 pattern_y_max = 3000;
 qint16 freqplot_x_length = 100;
 
 QString pattern_title_font_family = "Times";
